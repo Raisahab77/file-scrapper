@@ -8,6 +8,7 @@ import {
 } from '../config/config';
 import { UserModel } from '../models/user.model';
 import { WorkspaceModel } from '../models/workspace.model';
+import { WorkspaceUserModel } from '../models/workspaceUser.model';
 
 const sequelize = new Sequelize(
     DATABASE_NAME,
@@ -34,15 +35,18 @@ db.sequelize = sequelize;
 // Initialize the User model
 db.users = UserModel(sequelize);
 db.workspaces = WorkspaceModel(sequelize);
+db.workspaceUser = WorkspaceUserModel(sequelize);
 
-db.users.belongsTo(db.workspaces, {as:'workspace', foreignKey: 'workspace_id'});
+// Associates
+db.users.belongsToMany(db.workspaces, {through: db.workspaceUser, foreignKey: 'user_id', otherKey: 'workspace_id'});
+db.workspaces.belongsToMany(db.users, {through: db.workspaceUser, foreignKey: 'workspace_id', otherKey: 'user_id'});
 
-sequelize.sync({ alter: true }) // 'alter: true' to sync without dropping existing tables
-    .then(() => {
-        console.log('Database & tables created!');
-    })
-    .catch((error) => {
-        console.error('Error creating database & tables:', error);
-    });
+// sequelize.sync({ alter: true }) // 'alter: true' to sync without dropping existing tables
+//     .then(() => {
+//         console.log('Database & tables created!');
+//     })
+//     .catch((error) => {
+//         console.error('Error creating database & tables:', error);
+//     });
 
 export default db; // Use `export default` to ensure consistency in importing

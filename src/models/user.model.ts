@@ -4,7 +4,6 @@ export interface UserAttributes {
     user_id: string;
     email: string;
     password: string;
-    workspace_id: string;
     role: string;
     last_login?: Date | null;
 }
@@ -13,7 +12,6 @@ export class User extends Model<UserAttributes> implements UserAttributes {
     public user_id!: string;
     public email!: string;
     public password!: string;
-    public workspace_id: string;
     public role: string;
     public last_login!: Date | null;
 }
@@ -47,13 +45,6 @@ export function UserModel(sequelize: Sequelize): typeof User {
                     min: 8,
                     max: 16,
                     is: /^[a-zA-Z0-9!@#$%^&*]{8,16}$/
-                }
-            },
-            workspace_id: {
-                type: DataTypes.INTEGER,
-                references: {
-                    model: 'workspaces',
-                    key: 'workspace_id'
                 }
             },
             role: {
