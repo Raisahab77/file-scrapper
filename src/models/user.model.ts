@@ -1,4 +1,4 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
+import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
 
 export interface UserAttributes {
     user_id: string;
@@ -7,6 +7,8 @@ export interface UserAttributes {
     role: string;
     last_login?: Date | null;
 }
+
+interface UserCreationAttributes extends Optional<UserAttributes, "user_id" | "last_login"> {}
 
 export class User extends Model<UserAttributes> implements UserAttributes {
     public user_id!: string;
@@ -30,22 +32,21 @@ export function UserModel(sequelize: Sequelize): typeof User {
                 allowNull: false,
                 unique: {
                     name: 'unique_email',
-                    msg: 'Email must be unique'
+                    msg: 'Email must be unique',
                 },
                 validate: {
                     isEmail: true,
-                    notEmpty: true
-                }
+                    notEmpty: true,
+                },
             },
             password: {
                 type: DataTypes.STRING,
                 allowNull: false,
                 validate: {
                     notEmpty: true,
-                    min: 8,
-                    max: 16,
-                    is: /^[a-zA-Z0-9!@#$%^&*]{8,16}$/
-                }
+                    len: [8, 16], // Corrected password length validation
+                    is: /^[a-zA-Z0-9!@#$%^&*]{8,16}$/, // Regex validation
+                },
             },
             role: {
                 type: DataTypes.STRING,
@@ -53,8 +54,8 @@ export function UserModel(sequelize: Sequelize): typeof User {
                 defaultValue: 'user',
                 validate: {
                     notEmpty: true,
-                    isIn: [['admin', 'user']]
-                }
+                    isIn: [['admin', 'user']], // Fixed isIn validation
+                },
             },
             last_login: {
                 type: DataTypes.DATE,
